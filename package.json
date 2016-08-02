@@ -1,0 +1,16 @@
+{
+  "name": "MySQL App Generator",
+  "version": "0.0.0",
+  "description": "Aplication that create models, collections & tests",
+  "main": "server.js",
+  "repository": "",
+  "author": "Mostafa Eweda <mo.eweda@gmail.com>",
+  "dependencies": {
+    "async": "^0.2.10",
+    "express": "~3.2.4",
+    "mysql": "^2.11.1",
+    "mysql-promise": "^3.0.0",
+    "promise": "^7.1.1",
+    "socket.io": "~0.9.14"
+  }
+}
