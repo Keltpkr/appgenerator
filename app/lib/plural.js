@@ -10,7 +10,7 @@ module.exports = {
         if (typeof(resp) == 'undefined')
             resp = plural.substring(0,plural.length - 1);
     
-    console.log(plural);
+    //console.log(plural);
     return resp;
     }
 }

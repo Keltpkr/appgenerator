@@ -1,5 +1,7 @@
 var db = require('mysql-promise')();
 var promise = require('promise');
+var colors = require('colors/safe');
+
 var cnx = {
     connectionLimit : 100,
     host: process.env.ip,
@@ -63,7 +65,7 @@ function getForeignKey(tablename){
         q = q + " ,DELETE_RULE";
         q = q + " FROM";
         q = q + " INFORMATION_SCHEMA.KEY_COLUMN_USAGE as cu";
-        q = q + ",INFORMATION_SCHEMA.REFERENTIAL_CONSTRAINTS as rc";
+        q = q + " ,INFORMATION_SCHEMA.REFERENTIAL_CONSTRAINTS as rc";
         q = q + " WHERE";
         q = q + " TABLE_SCHEMA = 'jmf'";
         q = q + " AND cu.TABLE_NAME = '" + tablename + "'";
@@ -115,17 +117,33 @@ getTables()
     for(var table_inc=0;table_inc<data.length;table_inc++){
         for(var col=0;col<data[table_inc].length;col++){
             var item = data[table_inc][col];
-            var index = search.indexOf(Tables[table_inc].columns,item.COLUMN_NAME);
+            var index = search.findIndex(Tables[table_inc].columns,item.COLUMN_NAME);
             Tables[table_inc].columns[index].column_relation=item;
         }
     }
 }))
 .then(function() {
+    var rel = require("./app/lib/relations");
+    rel.GetRelations(Tables);
+    /*
     var gen = require("./app/lib/Generator");
+    var promises = new Array();
     for(var table_inc=0;table_inc<Tables.length;table_inc++){
-        gen.BuildModel(Tables[table_inc]);
-    }    
-     process.exit();
+        var p = gen.BuildModel(Tables[table_inc]);
+        promises.push(p);
+    }
+    return Promise.all(promises).then(function(values) {
+        for(var i=0;i<values.length;i++){
+            console.log(colors.gray(Tables[i].table_name));
+        }
+        console.log(values.length + ' file(s) saved');
+        
+        return values;
+    })
+    */
+})
+.then(function() {
+    process.exit();
 })
 .catch(function(err) {
     console.log(err);
