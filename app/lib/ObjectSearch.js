@@ -1,5 +1,5 @@
 module.exports = {
-    indexOf: function(myArray,searchString){
+    findIndex: function(myArray,searchString){
         var found = -1;
         for(var i=0;i<myArray.length;i++){
             for (var key in myArray[i]){
