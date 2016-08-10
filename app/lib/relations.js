@@ -1,3 +1,4 @@
+var is = require("./isAssociative");
 var search = require("./ObjectSearch");
 
 module.exports = {
@@ -5,14 +6,20 @@ module.exports = {
         // check relations
         for (var t_inc=0;t_inc<tables.length;t_inc++){
             // Detect if associative table
-            if (isAssociativeTable(tables,tables[t_inc])){
+            if (is.isAssociativeTable(tables,tables[t_inc])){
+                var u_pos = tables[t_inc].table_name.indexOf('_');
+                var tableR = [];
+                tableR[1] =  tables[t_inc].table_name.substring(0,u_pos);
+                tableR[0] =  tables[t_inc].table_name.substring(u_pos+1,tables[t_inc].table_name.length);
+                var flag = 0;
                 for (var c_inc=0;c_inc<tables[t_inc].columns.length;c_inc++){
                      if (tables[t_inc].columns[c_inc].COLUMN_KEY=='MUL') {
                         var relation = {};
-                        relation.type = 'manytomany';
-                        relation.relatedtablename = tables[t_inc].columns[c_inc].column_relation.REFERENCED_TABLE_NAME;
-                        relation.relatedcollumnname = tables[t_inc].columns[c_inc].column_relation.REFERENCED_COLUMN_NAME;
-                        setRelation(tables[search.findIndex(tables[t_inc].columns[c_inc].column_relation.REFERENCED_TABLE_NAME)],relation)
+                        relation.type = 'belongsToMany';
+                        relation.relatedtablename = tableR[flag];
+                        relation.relatedcollumnname = tables[t_inc].columns[c_inc].COLUMN_NAME;
+                        setRelation(tables,tables[search.findIndex(tables,tables[t_inc].columns[c_inc].column_relation.REFERENCED_TABLE_NAME)],relation)
+                        flag++;
                     }                   
                 }
             } else {
@@ -20,36 +27,27 @@ module.exports = {
                     // Check if column has relation
                     if (tables[t_inc].columns[c_inc].COLUMN_KEY=='MUL') {
                         var relation = {};
-                        relation.type = 'onetomany';
+                        relation.type = 'hasOne';
                         relation.relatedtablename = tables[t_inc].columns[c_inc].column_relation.REFERENCED_TABLE_NAME;
                         relation.relatedcollumnname = tables[t_inc].columns[c_inc].column_relation.REFERENCED_COLUMN_NAME;
-                        setRelation(tables[t_inc],relation)
+                        setRelation(tables,tables[t_inc],relation)
 
-                        relation.type = 'manytoone';
+                        var relation = {};
+                        relation.type = 'hasMany';
                         relation.relatedtablename = tables[t_inc].table_name;
                         relation.relatedcollumnname = tables[t_inc].columns[c_inc].COLUMN_NAME;
-                        setRelation(tables[search.findIndex(tables[t_inc].columns[c_inc].column_relation.REFERENCED_TABLE_NAME)],relation)
+                        var index = search.findIndex(tables,tables[t_inc].columns[c_inc].column_relation.REFERENCED_TABLE_NAME);
+                        setRelation(tables,tables[index],relation)
                     }
                 }
             }
         }
     }
 }
-function isAssociativeTable(tables,table){
-    
-    // 2 tables names separated with an underscore
-    var u_pos = table.table_name.indexOf('_');
-    if (u_pos != -1){
-        var table1 =  table.table_name.substring(0,u_pos);
-        var table2 =  table.table_name.substring(u_pos+1,table.table_name.length);
-        if (search.findIndex(tables,table1) != -1 && search.findIndex(tables,table2) != -1)
-            return true;
-    }
-        return false;
+
+function setRelation(tables,table,relation){
+    var index = search.findIndex(tables,table.table_name);
+    tables[index].relations.push(relation);
 }
-function setRelation(table,relation){
-    console.log(relation);
-}
-//console.log(t);                 
-//test.BuildRelations()
+
     

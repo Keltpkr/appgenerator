@@ -1,6 +1,8 @@
 var db = require('mysql-promise')();
 var promise = require('promise');
 var colors = require('colors/safe');
+var gen = require("./app/lib/Generator");
+var is = require("./app/lib/isAssociative");
 
 var cnx = {
     connectionLimit : 100,
@@ -97,6 +99,7 @@ getTables()
             var column = {'COLUMN_NAME':columns[table][col].COLUMN_NAME,'COLUMN_TYPE':columns[table][col].COLUMN_TYPE,'COLUMN_KEY':columns[table][col].COLUMN_KEY};
             Tables[table].columns.push(column);
         }
+        Tables[table].relations = [];
     }
 })
 .then(function () {
@@ -112,35 +115,49 @@ getTables()
         return values;
     })    
 })
-.then((function (data) {
+.then(function (data) {
     var search = require("./app/lib/ObjectSearch");
     for(var table_inc=0;table_inc<data.length;table_inc++){
         for(var col=0;col<data[table_inc].length;col++){
             var item = data[table_inc][col];
             var index = search.findIndex(Tables[table_inc].columns,item.COLUMN_NAME);
-            Tables[table_inc].columns[index].column_relation=item;
+            Tables[table_inc].columns[index].column_relation = item;
         }
     }
-}))
+})
 .then(function() {
+    // Models
+    var promises = [];
     var rel = require("./app/lib/relations");
     rel.GetRelations(Tables);
-    /*
-    var gen = require("./app/lib/Generator");
-    var promises = new Array();
     for(var table_inc=0;table_inc<Tables.length;table_inc++){
-        var p = gen.BuildModel(Tables[table_inc]);
-        promises.push(p);
+        if (Tables[table_inc].relations.length > 0){
+            var p = gen.BuildModel(Tables[table_inc]);
+            promises.push(p);
+        }
     }
     return Promise.all(promises).then(function(values) {
         for(var i=0;i<values.length;i++){
             console.log(colors.gray(Tables[i].table_name));
         }
-        console.log(values.length + ' file(s) saved');
-        
-        return values;
+        console.log(values.length + ' model(s) saved');
     })
-    */
+})
+.then(function() {
+    // Collections
+    var promises = [];
+    for(var table_inc=0;table_inc<Tables.length;table_inc++){
+        if (!is.isAssociativeTable(Tables,Tables[table_inc])){
+            var p = gen.BuilCollections(Tables[table_inc]);
+            promises.push(p);
+        }
+    }
+    return Promise.all(promises).then(function(values) {
+        for(var i=0;i<values.length;i++){
+            console.log(colors.gray(Tables[i].table_name));
+        }
+        console.log(values.length + ' collection(s) saved');
+    })
 })
 .then(function() {
     process.exit();
