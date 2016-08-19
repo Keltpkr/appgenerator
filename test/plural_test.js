@@ -60,4 +60,11 @@ describe('Plural to Singular', function() {
             expect(response).to.equal('sheep');
         });
     });
+    describe('Users', function() {
+        var plural = require('../app/lib/plural')
+        it('should return user', function() {
+            var response = plural.getSingular('users');
+            expect(response).to.equal('user');
+        });
+    });
 });
