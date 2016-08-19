@@ -67,4 +67,5 @@ describe('Plural to Singular', function() {
             expect(response).to.equal('user');
         });
     });
+
 });

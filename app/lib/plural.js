@@ -89,6 +89,7 @@ module.exports = {
                 return plural.substring(0,plural.length-3) + 'fe';
             if(plural.substring(plural.length-1,plural.length) =='s')
                 return plural.substring(0,plural.length-1); 
+
         } else {
             return resp;
         }
