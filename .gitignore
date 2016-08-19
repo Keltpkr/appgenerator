@@ -1,6 +1,6 @@
-/collections
-/models
-/routes
-/controllers
+/app/collections
+/app/models
+/app/routes
+/app/controllers
 /node_modules
 .c9/
