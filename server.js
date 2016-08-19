@@ -210,7 +210,7 @@ getTables()
 })
 .then(function() {
     // Controllers
-    var promises
+    var promises= [];
     var path = "./app/controllers/";
     if(!fs.existsSync(path))
         fs.mkdirSync(path);
