@@ -2,7 +2,7 @@ var is = require("./isAssociative");
 var search = require("./ObjectSearch");
 
 module.exports = {
-    SetRelations: function(tables) {
+    GetRelations: function(tables) {
         // check relations
         for (var t_inc=0;t_inc<tables.length;t_inc++){
             // Detect if associative table
@@ -47,8 +47,6 @@ module.exports = {
 
 function setRelation(tables,table,relation){
     var index = search.findIndex(tables,table.table_name);
-    if(typeof(tables[index].relations) == 'undefined')
-        tables[index].relations =[];
     tables[index].relations.push(relation);
 }
 

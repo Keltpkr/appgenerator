@@ -74,24 +74,19 @@ function searchValue(item) {
     return undefined;
 }
 module.exports = {
-    getSingular: function(string_item){
-        var resp = searchValue(string_item);
-        var regex = ".[0-9]$";
+    getSingular: function(plural){
+        var resp = searchValue(plural);
         if (typeof(resp) == 'undefined'){
-            if(string_item.substring(string_item.length-3,string_item.length) =='ies')
-                return string_item.substring(0,string_item.length-3) + 'y';
-            if(string_item.substring(string_item.length-3,string_item.length) =='ses')
-                return string_item.substring(0,string_item.length-2);
-            if(string_item.substring(string_item.length-4,string_item.length) =='ches')
-                return string_item.substring(0,string_item.length-2);
-            if(string_item.substring(string_item.length-4,string_item.length) =='shes')
-                return string_item.substring(0,string_item.length-2);                
-            if(string_item.substring(string_item.length-3,string_item.length) =='ves')
-                return string_item.substring(0,string_item.length-3) + 'fe'; 
-            if(string_item.charAt(string_item.length-1) =='s')
-                return string_item.substring(0,string_item.length-1)
-            if(string_item.match(regex))
-                return string_item + '_s';
+            if(plural.substring(plural.length-3,plural.length) =='ies')
+                return plural.substring(0,plural.length-3) + 'y';
+            if(plural.substring(plural.length-3,plural.length) =='ses')
+                return plural.substring(0,plural.length-2);
+            if(plural.substring(plural.length-4,plural.length) =='ches')
+                return plural.substring(0,plural.length-2);
+            if(plural.substring(plural.length-4,plural.length) =='shes')
+                return plural.substring(0,plural.length-2);                
+            if(plural.substring(plural.length-3,plural.length) =='ves')
+                return plural.substring(0,plural.length-3) + 'fe'; 
         } else {
             return resp;
         }
