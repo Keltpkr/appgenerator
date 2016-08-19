@@ -3,6 +3,8 @@ var promise = require('promise');
 var colors = require('colors/safe');
 var gen = require("./app/lib/Generator");
 var is = require("./app/lib/isAssociative");
+var plural = require("./app/lib//plural");
+var fs = require("fs");
 
 var cnx = {
     connectionLimit : 100,
@@ -99,7 +101,6 @@ getTables()
             var column = {'COLUMN_NAME':columns[table][col].COLUMN_NAME,'COLUMN_TYPE':columns[table][col].COLUMN_TYPE,'COLUMN_KEY':columns[table][col].COLUMN_KEY};
             Tables[table].columns.push(column);
         }
-        Tables[table].relations = [];
     }
 })
 .then(function () {
@@ -128,11 +129,22 @@ getTables()
 .then(function() {
     // Models
     var promises = [];
+    var path = "./app/models/";
+    if(!fs.existsSync(path))
+        fs.mkdirSync(path);
     var rel = require("./app/lib/relations");
-    rel.GetRelations(Tables);
+    rel.SetRelations(Tables);
     for(var table_inc=0;table_inc<Tables.length;table_inc++){
-        if (Tables[table_inc].relations.length > 0){
-            var p = gen.BuildModel(Tables[table_inc]);
+        if (Tables[table_inc].relations){
+            var txtfile = gen.BuildModel(Tables[table_inc]);
+            var file = path + plural.getSingular(Tables[table_inc].table_name) + "_mod.js";
+
+            var p  = fs.writeFile(file, txtfile,'utf8',(err) => {
+                if(err) {
+                    return(err);
+                }
+                return;
+            });
             promises.push(p);
         }
     }
@@ -146,9 +158,19 @@ getTables()
 .then(function() {
     // Collections
     var promises = [];
+    var path = "./app/collections/";
+    if(!fs.existsSync(path))
+        fs.mkdirSync(path);
     for(var table_inc=0;table_inc<Tables.length;table_inc++){
         if (!is.isAssociativeTable(Tables,Tables[table_inc])){
-            var p = gen.BuilCollections(Tables[table_inc]);
+            var txtfile = gen.BuilCollection(Tables[table_inc]);
+            var file = path + Tables[table_inc].table_name + "_col.js";
+            var p  = fs.writeFile(file, txtfile,'utf8',(err) => {
+                if(err) {
+                    return(err);
+                }
+                return;
+            });
             promises.push(p);
         }
     }
@@ -157,6 +179,59 @@ getTables()
             console.log(colors.gray(Tables[i].table_name));
         }
         console.log(values.length + ' collection(s) saved');
+    })
+})
+
+.then(function() {
+    // Routes
+    var promises = [];
+    var path = "./app/routes/";
+    if(!fs.existsSync(path))
+        fs.mkdirSync(path);
+    for(var table_inc=0;table_inc<Tables.length;table_inc++){
+        if (!is.isAssociativeTable(Tables,Tables[table_inc])){
+            var txtfile = gen.BuildRoute(Tables[table_inc]);
+            var file = path + Tables[table_inc].table_name + "_rou.js";
+            var p  = fs.writeFile(file, txtfile,'utf8',(err) => {
+                if(err) {
+                    return(err);
+                }
+                return;
+            });
+            promises.push(p);
+        }
+    }
+    return Promise.all(promises).then(function(values) {
+        for(var i=0;i<values.length;i++){
+            console.log(colors.gray(Tables[i].table_name));
+        }
+        console.log(values.length + ' route(s) saved');
+    })
+})
+.then(function() {
+    // Controllers
+    var promises
+    var path = "./app/controllers/";
+    if(!fs.existsSync(path))
+        fs.mkdirSync(path);
+    for(var table_inc=0;table_inc<Tables.length;table_inc++){
+        if (!is.isAssociativeTable(Tables,Tables[table_inc])){
+            var txtfile = gen.BuildController(Tables[table_inc]);
+            var file = path + Tables[table_inc].table_name + "_con.js";
+            var p  = fs.writeFile(file, txtfile,'utf8',(err) => {
+                if(err) {
+                    return(err);
+                }
+                return;
+            });
+            promises.push(p);
+        }
+    }
+    return Promise.all(promises).then(function(values) {
+        for(var i=0;i<values.length;i++){
+            console.log(colors.gray(Tables[i].table_name));
+        }
+        console.log(values.length + ' controller(s) saved');
     })
 })
 .then(function() {

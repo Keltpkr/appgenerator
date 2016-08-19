@@ -67,5 +67,11 @@ describe('Plural to Singular', function() {
             expect(response).to.equal('user');
         });
     });
-
+    describe('Table name ending with numbers', function() {
+        var plural = require('../app/lib/plural')
+        it('should return table03698_s', function() {
+            var response = plural.getSingular('table03698');
+            expect(response).to.equal('table03698_s');
+        });
+    });
 });
