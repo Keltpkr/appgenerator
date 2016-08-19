@@ -1,8 +1,4 @@
-process.env.NODE_ENV = 'test';
-
-var chai = require('chai');
-var expect = require('chai').expect;
-
+var rel = require('./app/lib/relations')
 var t = [
     {
         table_name:'groups_users',
@@ -159,17 +155,5 @@ var t = [
         ]
     }
 ];
-
-
-describe('Relations', function() {
-    describe('SetRelations', function() {
-        describe('belongsToMany', function() {
-            var rel = require('../app/lib/relations')
-            it('Table users should have a relation belongsToMany', function() {
-                rel.SetRelations(t);
-                //console.log(t[2].relations)
-                expect(t[2].relations[0].type).to.equal('belongsToMany');
-            });
-        });
-    });
-});
+var response = rel.SetRelations(t);
+console.log(t);
